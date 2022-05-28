@@ -1,12 +1,123 @@
 package personal.ng;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonPropertyOrder({
+        "body",
+        "email",
+        "author"
+})
+@Generated("jsonschema2pojo")
+class Comment {
+    @JsonProperty("body")
+    private String body;
+    @JsonProperty("email")
+    private String email;
+    @JsonProperty("author")
+    private String author;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Comment() {
+    }
+
+    /**
+     *
+     * @param author
+     * @param body
+     * @param email
+     */
+    public Comment(String body, String email, String author) {
+        super();
+        this.body = body;
+        this.email = email;
+        this.author = author;
+    }
+
+    @JsonProperty("body")
+    public String getBody() {
+        return body;
+    }
+
+    @JsonProperty("body")
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    @JsonProperty("email")
+    public String getEmail() {
+        return email;
+    }
+
+    @JsonProperty("email")
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @JsonProperty("author")
+    public String getAuthor() {
+        return author;
+    }
+
+    @JsonProperty("author")
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Comment.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("body");
+        sb.append('=');
+        sb.append(((this.body == null)?"<null>":this.body));
+        sb.append(',');
+        sb.append("email");
+        sb.append('=');
+        sb.append(((this.email == null)?"<null>":this.email));
+        sb.append(',');
+        sb.append("author");
+        sb.append('=');
+        sb.append(((this.author == null)?"<null>":this.author));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
+    }
+
+}
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({
@@ -19,8 +130,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "date"
 })
 @Generated("jsonschema2pojo")
-public class Dto implements Serializable
-{
+public class Dto {
     @JsonProperty("body")
     private String body;
     @JsonProperty("permalink")
@@ -35,12 +145,42 @@ public class Dto implements Serializable
     private List<Comment> comments = new ArrayList<Comment>();
     @JsonProperty("date")
     private String date;
-    private final static long serialVersionUID = 4647430736601194409L;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Dto() {
+    }
+
+    /**
+     *
+     * @param date
+     * @param comments
+     * @param author
+     * @param body
+     * @param permalink
+     * @param title
+     * @param tags
+     */
+    public Dto(String body, String permalink, String author, String title, List<String> tags, List<Comment> comments, String date) {
+        super();
+        this.body = body;
+        this.permalink = permalink;
+        this.author = author;
+        this.title = title;
+        this.tags = tags;
+        this.comments = comments;
+        this.date = date;
+    }
 
     @JsonProperty("body")
     public String getBody() {
         return body;
     }
+
     @JsonProperty("body")
     public void setBody(String body) {
         this.body = body;
@@ -50,6 +190,7 @@ public class Dto implements Serializable
     public String getPermalink() {
         return permalink;
     }
+
     @JsonProperty("permalink")
     public void setPermalink(String permalink) {
         this.permalink = permalink;
@@ -59,6 +200,7 @@ public class Dto implements Serializable
     public String getAuthor() {
         return author;
     }
+
     @JsonProperty("author")
     public void setAuthor(String author) {
         this.author = author;
@@ -68,6 +210,7 @@ public class Dto implements Serializable
     public String getTitle() {
         return title;
     }
+
     @JsonProperty("title")
     public void setTitle(String title) {
         this.title = title;
@@ -77,6 +220,7 @@ public class Dto implements Serializable
     public List<String> getTags() {
         return tags;
     }
+
     @JsonProperty("tags")
     public void setTags(List<String> tags) {
         this.tags = tags;
@@ -86,6 +230,7 @@ public class Dto implements Serializable
     public List<Comment> getComments() {
         return comments;
     }
+
     @JsonProperty("comments")
     public void setComments(List<Comment> comments) {
         this.comments = comments;
@@ -95,54 +240,63 @@ public class Dto implements Serializable
     public String getDate() {
         return date;
     }
+
     @JsonProperty("date")
     public void setDate(String date) {
         this.date = date;
     }
-}
 
-@JsonInclude(JsonInclude.Include.ALWAYS)
-@JsonPropertyOrder({
-        "body",
-        "email",
-        "author"
-})
-@Generated("jsonschema2pojo")
-class Comment implements Serializable
-{
-    @JsonProperty("body")
-    private String body;
-    @JsonProperty("email")
-    private String email;
-    @JsonProperty("author")
-    private String author;
-    private final static long serialVersionUID = -3608862303010402241L;
-
-    @JsonProperty("body")
-    public String getBody() {
-        return body;
-    }
-    @JsonProperty("body")
-    public void setBody(String body) {
-        this.body = body;
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
     }
 
-    @JsonProperty("email")
-    public String getEmail() {
-        return email;
-    }
-    @JsonProperty("email")
-    public void setEmail(String email) {
-        this.email = email;
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
     }
 
-    @JsonProperty("author")
-    public String getAuthor() {
-        return author;
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Dto.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("body");
+        sb.append('=');
+        sb.append(((this.body == null)?"<null>":this.body));
+        sb.append(',');
+        sb.append("permalink");
+        sb.append('=');
+        sb.append(((this.permalink == null)?"<null>":this.permalink));
+        sb.append(',');
+        sb.append("author");
+        sb.append('=');
+        sb.append(((this.author == null)?"<null>":this.author));
+        sb.append(',');
+        sb.append("title");
+        sb.append('=');
+        sb.append(((this.title == null)?"<null>":this.title));
+        sb.append(',');
+        sb.append("tags");
+        sb.append('=');
+        sb.append(((this.tags == null)?"<null>":this.tags));
+        sb.append(',');
+        sb.append("comments");
+        sb.append('=');
+        sb.append(((this.comments == null)?"<null>":this.comments));
+        sb.append(',');
+        sb.append("date");
+        sb.append('=');
+        sb.append(((this.date == null)?"<null>":this.date));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
-    @JsonProperty("author")
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
 }
