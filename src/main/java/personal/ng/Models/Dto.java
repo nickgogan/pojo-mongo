@@ -1,9 +1,6 @@
 package personal.ng.Models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -11,6 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import personal.ng.JacksonHelpers.StringDeserializer;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 @JsonPropertyOrder({
@@ -25,20 +26,33 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("jsonschema2pojo")
 public class Dto {
     @JsonProperty("body")
+    @JsonDeserialize(using = StringDeserializer.class)
+    @BsonProperty("body")
     public String body;
     @JsonProperty("permalink")
+    @JsonDeserialize(using = StringDeserializer.class)
+    @BsonProperty("permalink")
     public String permalink;
     @JsonProperty("author")
+    @JsonDeserialize(using = StringDeserializer.class)
+    @BsonProperty("author")
     public String author;
     @JsonProperty("title")
+    @JsonDeserialize(using = StringDeserializer.class)
+    @BsonProperty("title")
     public String title;
     @JsonProperty("tags")
+    @BsonProperty("tags")
     public List<String> tags = new ArrayList<String>();
     @JsonProperty("comments")
+    @BsonProperty("comments")
     public List<Comment> comments = new ArrayList<Comment>();
     @JsonProperty("date")
-    public String date;
+    @JsonDeserialize(using = StringDeserializer.class)
+    @BsonProperty("date")
+    public Date date;
     @JsonIgnore
+    @BsonIgnore
     public Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -58,7 +72,7 @@ public class Dto {
      * @param title
      * @param tags
      */
-    public Dto(String body, String permalink, String author, String title, List<String> tags, List<Comment> comments, String date) {
+    public Dto(String body, String permalink, String author, String title, List<String> tags, List<Comment> comments, Date date) {
         super();
         this.body = body;
         this.permalink = permalink;
@@ -130,12 +144,12 @@ public class Dto {
     }
 
     @JsonProperty("date")
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
     @JsonProperty("date")
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
