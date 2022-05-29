@@ -9,6 +9,7 @@ import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
 import com.mongodb.client.*;
 import org.bson.BsonDocument;
+import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.ClassModel;
 import org.bson.codecs.pojo.Conventions;
@@ -42,18 +43,6 @@ public class App
         //Setup up MongoDB conversion
         getPojoCodecRegistry();
 
-        //TODO: Writing
-
-        //Reading from local disk to Dto using the Jackson library
-        MappingIterator<Dto> it = localJsonToDtoUsingJackson(objectMapper, dataFile);
-        while(it.hasNext()) {
-            Dto doc = it.next();
-            System.out.println(doc.toString());
-        }
-
-        //Reading from local disk to Dto and then to Bson using MongoDB JsonData class intermediary
-        BsonDocument bsonUsingJsonDataClass = localJsonToDtoBsonUsingJsonDataClass(dataFile);
-
         //Reading from MongoDB Atlas
         MongoCollection<Dto> dtoUsingClassModelBuilders = bsonToDtoUsingClassModelBuilders();
         MongoCursor<Dto> cursorDtoDocs = dtoUsingClassModelBuilders.find().cursor();
@@ -62,6 +51,20 @@ public class App
             Dto doc = cursorDtoDocs.next();
             System.out.println(doc);
         }
+
+        //Reading from local disk to Dto using the Jackson library.
+        //Dto can be changed and then directly inserted into MongoDB collection because the collection is types to Dto.class.
+        MappingIterator<Dto> it = localJsonToDtoUsingJackson(objectMapper, dataFile);
+        while(it.hasNext()) {
+            Dto dto = it.next();
+            System.out.println(dto);
+        }
+
+        //Reading from local disk to Dto and then to Bson using MongoDB JsonData class intermediary
+        BsonDocument bsonUsingJsonDataClass = localJsonToDtoBsonUsingJsonDataClass(dataFile);
+        System.out.println(bsonUsingJsonDataClass.toJson());
+
+        //Don't forget
         mongoClient.close();
     }
 
