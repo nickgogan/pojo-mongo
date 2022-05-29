@@ -21,6 +21,6 @@ public class CommentCodec implements Codec<Comment> {
 
     @Override
     public Class<Comment> getEncoderClass() {
-        return null;
+        return Comment.class;
     }
 }

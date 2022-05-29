@@ -9,10 +9,8 @@ import com.mongodb.ServerApi;
 import com.mongodb.ServerApiVersion;
 import com.mongodb.client.*;
 import org.bson.BsonDocument;
-import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.ClassModel;
-import org.bson.codecs.pojo.Convention;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.json.JsonObject;
@@ -33,76 +31,77 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class App
 {
-    public static CodecProvider pojoCodecProvider;
-    public static CodecRegistry pojoCodecRegistry;
+    static CodecRegistry pojoCodecRegistry;
+    static MongoClient mongoClient;
 
     public static void main( String[] args ) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         File dataFile = new File(Configuration.inputData);
-        MongoClient mongoClient = connect();
-        int objectCount = 0;
 
-        //Conversion Possibilities
-        BsonDocument bsonUsingJsonDataClass = dtoToBsonUsingJsonDataClass(dataFile);
-        Dto dtoUsingAutomaticConversion = bsonToDto();
+        //Setup up MongoDB conversion
+        getPojoCodecRegistry();
 
-        try
+        //TODO: Writing
+
+        //Reading from local disk to Dto using the Jackson library
+        MappingIterator<Dto> it = localJsonToDtoUsingJackson(objectMapper, dataFile);
+        while(it.hasNext()) {
+            Dto doc = it.next();
+            System.out.println(doc.toString());
+        }
+
+        //Reading from local disk to Dto and then to Bson using MongoDB JsonData class intermediary
+        BsonDocument bsonUsingJsonDataClass = localJsonToDtoBsonUsingJsonDataClass(dataFile);
+
+        //Reading from MongoDB Atlas
+        MongoCollection<Dto> dtoUsingClassModelBuilders = bsonToDtoUsingClassModelBuilders();
+        MongoCursor<Dto> cursorDtoDocs = dtoUsingClassModelBuilders.find().cursor();
+        while(cursorDtoDocs.hasNext())
         {
-            MappingIterator<Dto> it = objectMapper.readerFor(Dto.class).readValues(dataFile);
-            MongoDatabase db = mongoClient.getDatabase(Configuration.db).withCodecRegistry(pojoCodecRegistry);
-            MongoCollection<Dto> coll = db.getCollection(Configuration.coll, Dto.class);
-            MongoCursor<Dto> docs = coll.find().cursor();
-            while(docs.hasNext()) {
-                Dto dto = docs.next();
-                System.out.println(dto);
-            }
-            while (it.hasNextValue()) {
-                Dto dto = it.nextValue();
-//                MongoDoc doc = DtoToMongodocConverter.convert(dto);
+            Dto doc = cursorDtoDocs.next();
+            System.out.println(doc);
+        }
+        mongoClient.close();
+    }
 
-                objectCount++;
-                System.out.println("Processed ["+objectCount+"] records so far."); //Test
-            }
-        }
-        catch(Exception ex)
-        {
-            System.out.println("Error iterating through file ["+dataFile+"].");
-            ex.printStackTrace();
-        }
-        finally {
-            mongoClient.close();
-        }
+    private static MappingIterator<Dto> localJsonToDtoUsingJackson(@NotNull ObjectMapper objectMapper, @NotNull File dataFile) throws IOException {
+        return objectMapper.readerFor(Dto.class).readValues(dataFile);
     }
 
     @NotNull
-    private static Dto bsonToDto() {
-        ClassModel<Dto> dtoPojoModel = ClassModel.builder(Dto.class).conventions(Arrays.asList(Conventions.ANNOTATION_CONVENTION)).build();
-        ClassModel<Comment> commentPojoModel = ClassModel.builder(Comment.class).conventions(Arrays.asList(Conventions.ANNOTATION_CONVENTION)).build();
-        PojoCodecProvider localPojoCodecProvider = PojoCodecProvider.builder().register(dtoPojoModel,commentPojoModel).build();
-        CodecRegistry localPojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(localPojoCodecProvider));
-
-        MongoClient mongoClient = connect();
-        MongoDatabase db = mongoClient.getDatabase(Configuration.db).withCodecRegistry(localPojoCodecRegistry);
-        MongoCollection<Dto> coll = db.getCollection(Configuration.coll, Dto.class);
-        MongoCursor<Dto> docs = coll.find().cursor();
-        Dto dto = docs.next();
-        mongoClient.close();
-        return dto;
+    private static MongoCollection<Dto> bsonToDtoUsingClassModelBuilders() {
+        MongoClient mongoClient = connect(getPojoCodecRegistry());
+        MongoDatabase db = mongoClient.getDatabase(Configuration.db).withCodecRegistry(getPojoCodecRegistry());
+        MongoCollection<Dto> collection = db.getCollection(Configuration.coll, Dto.class);
+        return collection;
     }
 
-    private static BsonDocument dtoToBsonUsingJsonDataClass(@NotNull File dataFile) throws IOException {
+    private static BsonDocument localJsonToDtoBsonUsingJsonDataClass(@NotNull File dataFile) throws IOException {
         String strData = Files.lines(dataFile.toPath()).collect(Collectors.joining(""));
         JsonObject jsonData = new JsonObject(strData);
-        BsonDocument bsonDoc = jsonData.toBsonDocument(Dto.class, pojoCodecRegistry);
+        BsonDocument bsonDoc = jsonData.toBsonDocument(Dto.class, getPojoCodecRegistry());
         return bsonDoc;
     }
 
-    @Nullable
-    private static MongoClient connect() {
-        pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
-        pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
+    private static CodecRegistry getPojoCodecRegistry() {
+        if(App.pojoCodecRegistry == null) {
+            createPojoCodecRegistry();
+            return App.pojoCodecRegistry;
+        }
+        return App.pojoCodecRegistry;
+    }
 
+    @NotNull
+    private static void createPojoCodecRegistry() {
+        ClassModel<Dto> dtoPojoModel = ClassModel.builder(Dto.class).conventions(Arrays.asList(Conventions.ANNOTATION_CONVENTION)).build();
+        ClassModel<Comment> commentPojoModel = ClassModel.builder(Comment.class).conventions(Arrays.asList(Conventions.ANNOTATION_CONVENTION)).build();
+        PojoCodecProvider localPojoCodecProvider = PojoCodecProvider.builder().register(dtoPojoModel,commentPojoModel).build(); //Register the class model instead of calling automatic(true) before the build().
+        pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(localPojoCodecProvider));
+    }
+
+    @Nullable
+    private static MongoClient connect(CodecRegistry pojoCodecRegistry) {
         ConnectionString connectionString = new ConnectionString(Configuration.connectionString);
         MongoClientSettings settings = MongoClientSettings.builder()
             .codecRegistry(pojoCodecRegistry)
@@ -112,7 +111,6 @@ public class App
                 .build())
             .build();
 
-        MongoClient mongoClient = null;
         try {
             mongoClient = MongoClients.create(settings);
         }
@@ -122,17 +120,4 @@ public class App
 
         return mongoClient;
     }
-
-//        CodecProvider pojoCodecProvider = PojoCodecProvider.builder().register("com.mongodb.pov.TargetModelV2").build();
-//        CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
-//
-//        CodecRegistry registry = getDefaultCodecRegistry();
-////        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(getDefaultCodecRegistry()
-////                , org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-//
-//
-
-//        database = mongoClient.getDatabase(Configuration.db).withCodecRegistry(pojoCodecRegistry);
-//        collection = database.getCollection(Configuration.coll, TargetModelV2.class);
-//    }
 }

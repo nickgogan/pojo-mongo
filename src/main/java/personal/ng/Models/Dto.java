@@ -9,8 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.bson.BsonType;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
 import personal.ng.JacksonHelpers.StringDeserializer;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -48,8 +50,8 @@ public class Dto {
     @BsonProperty("comments")
     public List<Comment> comments = new ArrayList<Comment>();
     @JsonProperty("date")
-    @JsonDeserialize(using = StringDeserializer.class)
     @BsonProperty("date")
+//    @BsonRepresentation(BsonType.DATE_TIME)
     public Date date;
     @JsonIgnore
     @BsonIgnore

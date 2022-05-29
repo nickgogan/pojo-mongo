@@ -1,6 +1,7 @@
 package personal.ng;
 
 import org.jetbrains.annotations.NotNull;
+import personal.ng.Models.Dto;
 
 public class DtoToMongodocConverter {
     @NotNull
