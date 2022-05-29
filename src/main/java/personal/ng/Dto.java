@@ -21,13 +21,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("jsonschema2pojo")
 class Comment {
     @JsonProperty("body")
-    private String body;
+    public String body;
     @JsonProperty("email")
-    private String email;
+    public String email;
     @JsonProperty("author")
-    private String author;
+    public String author;
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * No args constructor for use in serialization
@@ -132,21 +132,21 @@ class Comment {
 @Generated("jsonschema2pojo")
 public class Dto {
     @JsonProperty("body")
-    private String body;
+    public String body;
     @JsonProperty("permalink")
-    private String permalink;
+    public String permalink;
     @JsonProperty("author")
-    private String author;
+    public String author;
     @JsonProperty("title")
-    private String title;
+    public String title;
     @JsonProperty("tags")
-    private List<String> tags = new ArrayList<String>();
+    public List<String> tags = new ArrayList<String>();
     @JsonProperty("comments")
-    private List<Comment> comments = new ArrayList<Comment>();
+    public List<Comment> comments = new ArrayList<Comment>();
     @JsonProperty("date")
-    private String date;
+    public String date;
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    public Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * No args constructor for use in serialization
